@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block title %}Parqueos{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h2 class="mb-4">Parqueos</h2>
+
+    <a href="{{ url_for('parqueo.agregar') }}" class="btn btn-success mb-4">Agregar Parqueo</a>
+
+    <div class="row">
+        {% for p in parqueos %}
+        <div class="col-md-4 mb-4">
+            <div class="card h-100 shadow-sm">
+                {% if p.logo %}
+                    <img src="{{ url_for('static', filename=p.logo) }}" class="card-img-top" style="height:200px; object-fit:cover;" alt="{{ p.nombre }}">
+                {% else %}
+                    <div class="card-img-top d-flex justify-content-center align-items-center bg-light" style="height:200px;">
+                        <span class="text-muted">Sin imagen</span>
+                    </div>
+                {% endif %}
+
+                <div class="card-body">
+                    <h5 class="card-title">{{ p.nombre }}</h5>
+                    <p class="card-text">
+                        <strong>Dirección:</strong> {{ p.direccion }}<br>
+                        <strong>Teléfono:</strong> {{ p.telefono or 'N/A' }}<br>
+                        <strong>Horario:</strong> {{ p.horario_apertura.strftime('%H:%M') }} - {{ p.horario_cierre.strftime('%H:%M') }}<br>
+                        <strong>Capacidad Autos:</strong> {{ p.capacidad_autos }}<br>
+                        <strong>Capacidad Motos:</strong> {{ p.capacidad_motos }}<br>
+                        <strong>Descripción:</strong> {{ p.descripcion or 'N/A' }}
+                    </p>
+                </div>
+                <div class="card-footer d-flex justify-content-between">
+                    <a href="{{ url_for('parqueo.editar', id_parqueo=p.id_parqueo) }}" class="btn btn-primary btn-sm">Editar</a>
+                    <a href="{{ url_for('parqueo.eliminar', id_parqueo=p.id_parqueo) }}" class="btn btn-danger btn-sm"
+                       onclick="return confirm('¿Está seguro de eliminar este parqueo?')">Eliminar</a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

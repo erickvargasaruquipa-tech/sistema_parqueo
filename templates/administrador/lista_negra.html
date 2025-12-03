@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+
+{% block title %}Lista Negra{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Lista Negra</h2>
+    <a href="{{ url_for('lista_negra.nuevo') }}" class="btn btn-success mb-3">Agregar Registro</a>
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>ID Lista</th>
+                <th>ID Vehículo</th>
+                <th>ID Cliente</th>
+                <th>Estado</th>
+                <th>Registrado Por</th>
+                <th>Fecha Registro</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for entrada in entradas %}
+            <tr>
+                <td>{{ entrada.id_lista }}</td>
+                <td>{{ entrada.id_vehiculo }}</td>
+                <td>{{ entrada.id_cliente }}</td>
+                <td>{{ entrada.estado }}</td>
+                <td>{{ entrada.registrado_por }}</td>
+                <td>{{ entrada.fecha_registro }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

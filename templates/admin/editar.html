@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-6">
+    <div class="card shadow-sm">
+      <div class="card-body">
+        <h4 class="card-title mb-3">Editar Administrador</h4>
+        <form action="" method="post">
+          <div class="mb-2">
+            <input name="nombre" class="form-control" placeholder="Nombre" value="{{ admin.nombre }}" required>
+          </div>
+          <div class="mb-2">
+            <input name="apellido_paterno" class="form-control" placeholder="Apellido Paterno" value="{{ admin.apellido_paterno }}" required>
+          </div>
+          <div class="mb-2">
+            <input name="apellido_materno" class="form-control" placeholder="Apellido Materno" value="{{ admin.apellido_materno }}" required>
+          </div>
+          <div class="mb-2">
+            <input name="usuario" class="form-control" placeholder="Usuario" value="{{ admin.usuario }}" required>
+          </div>
+          <div class="mb-2">
+            <input name="password" type="password" class="form-control" placeholder="Nueva Contraseña (dejar vacío si no cambia)">
+          </div>
+          <div class="mb-2">
+            <select name="rol" class="form-select">
+              <option value="admin" {% if admin.rol=='admin' %}selected{% endif %}>Admin</option>
+              <option value="superadmin" {% if admin.rol=='superadmin' %}selected{% endif %}>Superadmin</option>
+            </select>
+          </div>
+          <button class="btn btn-primary w-100">Actualizar</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

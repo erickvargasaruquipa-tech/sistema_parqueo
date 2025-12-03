@@ -1,0 +1,191 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="card shadow-sm">
+  <div class="card-body">
+
+    <p>Bienvenido, {{ session.get('usuario') }}.</p>
+
+    <!-- Filtros: fecha y circulitos + búsqueda -->
+    <form method="get" class="row g-2 mb-4 align-items-end">
+      <div class="col-md-3">
+        <label class="form-label">Fecha:</label>
+        <input type="date" name="fecha" value="{{ fecha }}" class="form-control" onchange="this.form.submit()">
+      </div>
+
+      <div class="col-md-6 d-flex align-items-center gap-3">
+        <!-- Radios -->
+        <div class="form-check">
+          <input class="form-check-input" type="radio" name="filtro" value="activos" id="filtroActivos"
+                 onchange="this.form.submit()" {% if filtro=='activos' %}checked{% endif %}>
+          <label class="form-check-label" for="filtroActivos">Activos</label>
+        </div>
+        <div class="form-check">
+          <input class="form-check-input" type="radio" name="filtro" value="salidos" id="filtroSalidos"
+                 onchange="this.form.submit()" {% if filtro=='salidos' %}checked{% endif %}>
+          <label class="form-check-label" for="filtroSalidos">Ya salieron</label>
+        </div>
+        <div class="form-check">
+          <input class="form-check-input" type="radio" name="filtro" value="todos" id="filtroTodos"
+                 onchange="this.form.submit()" {% if filtro=='todos' %}checked{% endif %}>
+          <label class="form-check-label" for="filtroTodos">Todos</label>
+        </div>
+
+        <!-- Campo de búsqueda -->
+        <input type="text" name="busqueda" placeholder="Placa o CI" value="{{ busqueda }}"
+               class="form-control w-auto ms-3" style="max-width:200px;">
+      </div>
+    </form>
+
+    <!-- Capacidad con recuadros dinámicos -->
+    <div class="d-flex gap-3 mb-4">
+      {% set total_autos = capacidad.autos + (50 - capacidad.autos) %}
+      {% set total_motos = capacidad.motos + (30 - capacidad.motos) %}
+
+      {% macro color_fondo(disponible, total) %}
+        {% set ratio = disponible / total %}
+        {% if ratio > 0.5 %}
+          {{ 'rgb(144, 238, 144)' }}
+        {% elif ratio > 0.2 %}
+          {{ 'rgb(255, 255, 102)' }}
+        {% else %}
+          {{ 'rgb(255, 102, 102)' }}
+        {% endif %}
+      {% endmacro %}
+
+      <div class="flex-fill text-center p-3 rounded" style="background-color: {{ color_fondo(capacidad.autos, total_autos) }};">
+        <h5>Autos disponibles</h5>
+        <span style="font-size:2.5rem; font-weight:bold;">{{ capacidad.autos }}</span>
+      </div>
+
+      <div class="flex-fill text-center p-3 rounded" style="background-color: {{ color_fondo(capacidad.motos, total_motos) }};">
+        <h5>Motos disponibles</h5>
+        <span style="font-size:2.5rem; font-weight:bold;">{{ capacidad.motos }}</span>
+      </div>
+    </div>
+
+    <!-- Botones ingreso/salida -->
+    <div class="d-flex gap-2 flex-wrap mb-4">
+      <a href="{{ url_for('administrador.ingreso') }}" class="btn btn-success flex-fill">Ingreso</a>
+      <button type="button" class="btn btn-danger flex-fill" data-bs-toggle="modal" data-bs-target="#salidaModal">
+        Salida
+      </button>
+    </div>
+
+    <!-- LISTA DE VEHÍCULOS -->
+    <h4 class="mb-3">Vehículos del día</h4>
+
+    <div class="row">
+      {% for r in registros %}
+      {% set bg_color = 'bg-success bg-opacity-25' if r.estado=='abierto' else 'bg-danger bg-opacity-25' %}
+      <div class="col-lg-3 col-md-4 col-sm-6 mb-3">
+        <div class="card shadow-sm cursor-pointer {{ bg_color }}" data-bs-toggle="modal" data-bs-target="#vehiculoModal">
+
+          {% if r.vehiculo.foto %}
+          <img src="{{ '/' + r.vehiculo.foto }}" class="img-fluid" style="height:150px; object-fit:cover;">
+          {% else %}
+          <div class="bg-secondary text-white d-flex justify-content-center align-items-center"
+               style="height:150px;">
+            SIN FOTO
+          </div>
+          {% endif %}
+
+          <div class="card-body">
+            <h5 class="card-title">{{ r.vehiculo.placa }}</h5>
+
+            <p class="mb-1"><strong>Ingreso:</strong>
+              <span style="font-size: 1.3rem;">{{ r.fecha_ingreso.strftime("%H:%M") }}</span>
+            </p>
+
+            <p class="mb-1"><strong>Salida:</strong>
+              <span style="font-size: 1.3rem;">
+                {% if r.fecha_salida %}
+                  {{ r.fecha_salida.strftime("%H:%M") }}
+                {% else %}
+                  ---
+                {% endif %}
+              </span>
+            </p>
+
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+
+  </div>
+</div>
+
+<!-- MODAL VEHÍCULO -->
+<div class="modal fade" id="vehiculoModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Detalles del vehículo</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <!-- Contenido dinámico -->
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL SALIDA -->
+<div class="modal fade" id="salidaModal" tabindex="-1" aria-labelledby="salidaModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header bg-danger text-white">
+        <h5 class="modal-title" id="salidaModalLabel">Buscar vehículo para salida</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <form id="formSalida" method="post" action="{{ url_for('salida_controller.buscar_salida') }}">
+          <div class="mb-3">
+            <label class="form-label">Placa:</label>
+            <input type="text" name="placa" id="placa_salida" class="form-control" placeholder="Ingrese placa">
+          </div>
+          <div class="mb-3">
+            <label class="form-label">C.I.:</label>
+            <input type="text" name="ci" id="ci_salida" class="form-control" placeholder="Ingrese CI">
+          </div>
+          <div class="mb-3">
+            <label class="form-label">QR:</label>
+            <button type="button" class="btn btn-secondary w-100" disabled>Aún no disponible</button>
+          </div>
+          <button type="submit" class="btn btn-danger w-100">Buscar</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Script Autocompletar salida -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+$(document).ready(function(){
+  // Autocompletar CI al escribir placa
+  $('#placa_salida').on('change', function(){
+    let placa = $(this).val().trim();
+    if(!placa) return;
+    $.getJSON('/ingreso_controller/autocompletar/placa/' + placa, function(data){
+      if(data.cliente){
+        $('#ci_salida').val(data.cliente.ci);
+      }
+    });
+  });
+
+  // Autocompletar placa al escribir CI
+  $('#ci_salida').on('change', function(){
+    let ci = $(this).val().trim();
+    if(!ci) return;
+    $.getJSON('/ingreso_controller/autocompletar/ci/' + ci, function(data){
+      if(data.vehiculo){
+        $('#placa_salida').val(data.vehiculo.placa);
+      }
+    });
+  });
+});
+</script>
+
+{% endblock %}

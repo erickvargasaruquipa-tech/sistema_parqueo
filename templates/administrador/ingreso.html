@@ -1,0 +1,183 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="card shadow-sm">
+  <div class="card-body">
+    <h4 class="mb-4">Registro de ingreso de vehículo</h4>
+
+    <form action="{{ url_for('administrador.guardar_ingreso') }}" method="post" enctype="multipart/form-data" id="formIngreso">
+      
+      <!-- PLACA Y CI -->
+      <div class="row mb-3">
+        <div class="col">
+          <label class="form-label bg-primary text-white p-1 rounded">Placa:</label>
+          <input type="text" name="placa" id="placa" class="form-control" placeholder="Placa" required>
+        </div>
+        <div class="col">
+          <label class="form-label bg-success text-white p-1 rounded">C.I.:</label>
+          <input type="text" name="ci" id="ci" class="form-control" placeholder="Ingrese CI" maxlength="10" required>
+        </div>
+      </div>
+
+      <!-- VEHÍCULO -->
+      <div class="mb-3">
+        <label class="form-label">Tipo:</label>
+        <select name="tipo" class="form-select" required>
+          <option value="" disabled selected>Seleccione un tipo</option>
+          {% for tipo in tipos %}
+          <option value="{{ tipo }}">{{ tipo }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">Marca:</label>
+        <input type="text" name="marca" id="marca" class="form-control" placeholder="Marca">
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">Modelo:</label>
+        <input type="text" name="modelo" id="modelo" class="form-control" placeholder="Modelo">
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">Color:</label>
+        <input type="text" name="color" id="color" class="form-control" placeholder="Color">
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">Foto:</label>
+        <input type="file" name="foto" class="form-control">
+      </div>
+
+      <!-- CLIENTE -->
+      <div class="mb-3">
+        <label class="form-label">Nombre:</label>
+        <input type="text" name="nombre" id="nombre" class="form-control" placeholder="Nombre">
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">Apellido Paterno:</label>
+        <input type="text" name="apellido_paterno" id="apellido_paterno" class="form-control" placeholder="Apellido Paterno">
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">Apellido Materno:</label>
+        <input type="text" name="apellido_materno" id="apellido_materno" class="form-control" placeholder="Apellido Materno">
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">Teléfono:</label>
+        <input type="text" name="telefono" id="telefono" class="form-control" placeholder="Teléfono" maxlength="8">
+      </div>
+
+      <button type="submit" class="btn btn-primary">Guardar ingreso</button>
+    </form>
+  </div>
+</div>
+
+<!-- MODAL ADVERTENCIA -->
+<div class="modal fade" id="alertModal" tabindex="-1" aria-labelledby="alertModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content border-danger">
+      <div class="modal-header bg-danger text-white">
+        <h5 class="modal-title" id="alertModalLabel">Advertencia</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body" id="alertMessage"></div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Cerrar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+$(document).ready(function(){
+
+  function soloLetras(e){
+    let key = e.keyCode || e.which;
+    let tecla = String.fromCharCode(key).toLowerCase();
+    let letras = " áéíóúabcdefghijklmnñopqrstuvwxyz";
+    let especiales = [8,9,37,39,46];
+    if(letras.indexOf(tecla)===-1 && !especiales.includes(key)) e.preventDefault();
+  }
+
+  function soloNumeros8(e){
+    let key = e.keyCode || e.which;
+    if((key < 48 || key > 57) && ![8,9].includes(key)) e.preventDefault();
+    if($(this).val().length >= 8) e.preventDefault();
+  }
+
+  $('#nombre, #apellido_paterno, #apellido_materno, #marca, #modelo, #color').keypress(soloLetras);
+  $('#telefono').keypress(soloNumeros8);
+
+  // Autocompletar por CI
+  $('#ci').on('change', function(){
+    let ci = $(this).val().trim();
+    if(!ci){
+      $('#nombre,#apellido_paterno,#apellido_materno,#telefono').val('');
+      return;
+    }
+    $.getJSON('/ingreso_controller/autocompletar/ci/' + ci, function(data){
+      if(data.cliente){
+        $('#nombre').val(data.cliente.nombre);
+        $('#apellido_paterno').val(data.cliente.apellido_paterno);
+        $('#apellido_materno').val(data.cliente.apellido_materno);
+        $('#telefono').val(data.cliente.telefono);
+        $('#ci').val(data.cliente.ci);
+      }
+      if(data.vehiculo){
+        $('#placa').val(data.vehiculo.placa);
+        $('#tipo').val(data.vehiculo.tipo);
+        $('#marca').val(data.vehiculo.marca);
+        $('#modelo').val(data.vehiculo.modelo);
+        $('#color').val(data.vehiculo.color);
+      }
+      if(data.registro_activo){
+        $('#alertMessage').text('El cliente o vehículo ya se encuentra dentro del parqueo.');
+        var alertModal = new bootstrap.Modal(document.getElementById('alertModal'));
+        alertModal.show();
+      }
+    });
+  });
+
+  // Autocompletar por Placa
+  $('#placa').on('change', function(){
+    let placa = $(this).val().trim();
+    if(!placa){
+      $('#tipo,#marca,#modelo,#color').val('');
+      return;
+    }
+    $.getJSON('/ingreso_controller/autocompletar/placa/' + placa, function(data){
+      if(data.cliente){
+        $('#ci').val(data.cliente.ci);
+        $('#nombre').val(data.cliente.nombre);
+        $('#apellido_paterno').val(data.cliente.apellido_paterno);
+        $('#apellido_materno').val(data.cliente.apellido_materno);
+        $('#telefono').val(data.cliente.telefono);
+      }
+      if(data.vehiculo){
+        $('#tipo').val(data.vehiculo.tipo);
+        $('#marca').val(data.vehiculo.marca);
+        $('#modelo').val(data.vehiculo.modelo);
+        $('#color').val(data.vehiculo.color);
+      }
+      if(data.registro_activo){
+        $('#alertMessage').text('El cliente o vehículo ya se encuentra dentro del parqueo.');
+        var alertModal = new bootstrap.Modal(document.getElementById('alertModal'));
+        alertModal.show();
+      }
+    });
+  });
+
+  // Convertir todo a mayúsculas
+  $('input[type="text"]').on('input', function () {
+    this.value = this.value.toUpperCase();
+  });
+
+});
+</script>
+
+{% endblock %}

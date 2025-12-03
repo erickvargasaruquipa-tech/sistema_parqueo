@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% block title %}{{ accion }} Tarifa{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h2 class="mb-4">{{ accion }} Tarifa</h2>
+
+    <form method="POST">
+        <div class="row g-3">
+            <div class="col-md-6">
+                <label for="tipo_vehiculo" class="form-label">Tipo Vehículo <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" id="tipo_vehiculo" name="tipo_vehiculo"
+                       value="{{ tarifa.tipo_vehiculo if tarifa else '' }}" required>
+            </div>
+
+            <div class="col-md-6">
+                <label for="precio_hora" class="form-label">Precio Hora <span class="text-danger">*</span></label>
+                <input type="number" class="form-control" id="precio_hora" name="precio_hora" step="0.01"
+                       value="{{ tarifa.precio_hora if tarifa else '' }}" required min="0">
+            </div>
+
+            <div class="col-12 mt-3 d-flex justify-content-between">
+                <a href="{{ url_for('tarifas.index') }}" class="btn btn-secondary">Cancelar</a>
+                <button type="submit" class="btn btn-success">{{ accion }}</button>
+            </div>
+        </div>
+    </form>
+</div>
+{% endblock %}

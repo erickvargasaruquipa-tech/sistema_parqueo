@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block title %}Tarifas{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h2 class="mb-4">Tarifas</h2>
+
+    <a href="{{ url_for('tarifas.agregar') }}" class="btn btn-success mb-4">Agregar Tarifa</a>
+
+    <table class="table table-striped table-bordered">
+        <thead class="table-dark">
+            <tr>
+                <th>ID</th>
+                <th>Tipo Vehículo</th>
+                <th>Precio Hora</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for t in tarifas %}
+            <tr>
+                <td>{{ t.id_tarifa }}</td>
+                <td>{{ t.tipo_vehiculo }}</td>
+                <td>{{ t.precio_hora }}</td>
+                <td>
+                    <a href="{{ url_for('tarifas.editar', id_tarifa=t.id_tarifa) }}" class="btn btn-primary btn-sm">Editar</a>
+                    <a href="{{ url_for('tarifas.eliminar', id_tarifa=t.id_tarifa) }}" class="btn btn-danger btn-sm"
+                       onclick="return confirm('¿Está seguro de eliminar esta tarifa?')">Eliminar</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

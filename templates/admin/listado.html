@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h3>Administradores</h3>
+    <a href="{{ url_for('admin.nuevo') }}" class="btn btn-success">Nuevo administrador</a>
+</div>
+
+<table class="table table-bordered table-striped">
+    <thead class="table-dark">
+        <tr>
+            <th>Nombre</th>
+            <th>Usuario</th>
+            <th>Rol</th>
+            <th>Estado</th>
+            <th>Acciones</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for a in admins %}
+        <tr>
+            <td>{{ a.nombre_completo() }}</td>
+            <td>{{ a.usuario }}</td>
+            <td>{{ a.rol }}</td>
+            <td>
+                {% if a.estado == 'activo' %}
+                    <span class="badge bg-success">{{ a.estado }}</span>
+                {% else %}
+                    <span class="badge bg-danger">{{ a.estado }}</span>
+                {% endif %}
+            </td>
+            <td>
+                <a href="{{ url_for('admin.cambiar_estado', id_admin=a.id_admin) }}" class="btn btn-sm btn-warning">Cambiar estado</a>
+                <a href="{{ url_for('admin.editar', id_admin=a.id_admin) }}" class="btn btn-sm btn-primary">Actualizar</a>
+                <a href="{{ url_for('admin.eliminar', id_admin=a.id_admin) }}" class="btn btn-sm btn-danger"
+                    onclick="return confirm('¿Seguro que deseas eliminar este administrador?');">Eliminar</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

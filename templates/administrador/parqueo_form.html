@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+
+{% block title %}{{ accion }} Parqueo{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h2 class="mb-4">{{ accion }} Parqueo</h2>
+
+    <form method="POST" enctype="multipart/form-data">
+        <div class="row g-3">
+            <div class="col-md-6">
+                <label for="nombre" class="form-label">Nombre <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" id="nombre" name="nombre" 
+                       value="{{ parqueo.nombre if parqueo else '' }}" required>
+            </div>
+
+            <div class="col-md-6">
+                <label for="direccion" class="form-label">Dirección <span class="text-danger">*</span></label>
+                <input type="text" class="form-control" id="direccion" name="direccion" 
+                       value="{{ parqueo.direccion if parqueo else '' }}" required>
+            </div>
+
+            <div class="col-md-6">
+                <label for="telefono" class="form-label">Teléfono</label>
+                <input type="number" class="form-control" id="telefono" name="telefono" 
+                       value="{{ parqueo.telefono if parqueo else '' }}" maxlength="8" min="0">
+                <div class="form-text">Solo números, máximo 8 dígitos.</div>
+            </div>
+
+            <div class="col-md-3">
+                <label for="capacidad_autos" class="form-label">Capacidad Autos <span class="text-danger">*</span></label>
+                <input type="number" class="form-control" id="capacidad_autos" name="capacidad_autos" 
+                       value="{{ parqueo.capacidad_autos if parqueo else '' }}" required min="0">
+            </div>
+
+            <div class="col-md-3">
+                <label for="capacidad_motos" class="form-label">Capacidad Motos <span class="text-danger">*</span></label>
+                <input type="number" class="form-control" id="capacidad_motos" name="capacidad_motos" 
+                       value="{{ parqueo.capacidad_motos if parqueo else '' }}" required min="0">
+            </div>
+
+            <div class="col-md-6">
+                <label for="horario_apertura" class="form-label">Horario Apertura <span class="text-danger">*</span></label>
+                <input type="time" class="form-control" id="horario_apertura" name="horario_apertura" 
+                       value="{{ parqueo.horario_apertura.strftime('%H:%M') if parqueo else '' }}" required>
+            </div>
+
+            <div class="col-md-6">
+                <label for="horario_cierre" class="form-label">Horario Cierre <span class="text-danger">*</span></label>
+                <input type="time" class="form-control" id="horario_cierre" name="horario_cierre" 
+                       value="{{ parqueo.horario_cierre.strftime('%H:%M') if parqueo else '' }}" required>
+            </div>
+
+            <div class="col-md-12">
+                <label for="descripcion" class="form-label">Descripción</label>
+                <textarea class="form-control" id="descripcion" name="descripcion" rows="3">{{ parqueo.descripcion if parqueo else '' }}</textarea>
+            </div>
+
+            <div class="col-md-6">
+                <label for="logo" class="form-label">Logo</label>
+                <input class="form-control" type="file" id="logo" name="logo" accept="image/*">
+                {% if parqueo and parqueo.logo %}
+                    <img src="{{ url_for('static', filename=parqueo.logo) }}" 
+                         alt="Logo" class="img-thumbnail mt-2" style="height:150px; object-fit:cover;">
+                {% endif %}
+            </div>
+
+            <div class="col-12 mt-3 d-flex justify-content-between">
+                <a href="{{ url_for('parqueo.index') }}" class="btn btn-secondary">Cancelar</a>
+                <button type="submit" class="btn btn-success">{{ accion }}</button>
+            </div>
+        </div>
+    </form>
+</div>
+{% endblock %}

@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block title %}Formulario Lista Negra{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>{{ 'Editar Registro' if entrada else 'Agregar Registro' }}</h2>
+    <form method="POST">
+        <div class="mb-3">
+            <label class="form-label">ID Vehículo</label>
+            <input type="number" name="id_vehiculo" class="form-control" required
+                   value="{{ entrada.id_vehiculo if entrada else '' }}">
+        </div>
+        <div class="mb-3">
+            <label class="form-label">ID Cliente</label>
+            <input type="number" name="id_cliente" class="form-control" required
+                   value="{{ entrada.id_cliente if entrada else '' }}">
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Estado</label>
+            <select name="estado" class="form-select">
+                <option value="activo" {% if entrada and entrada.estado=='activo' %}selected{% endif %}>Activo</option>
+                <option value="inactivo" {% if entrada and entrada.estado=='inactivo' %}selected{% endif %}>Inactivo</option>
+            </select>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Registrado por (ID Administrador)</label>
+            <input type="number" name="registrado_por" class="form-control" required
+                   value="{{ entrada.registrado_por if entrada else '' }}">
+        </div>
+        <button type="submit" class="btn btn-success">Guardar</button>
+        <a href="{{ url_for('lista_negra.index') }}" class="btn btn-secondary">Cancelar</a>
+    </form>
+</div>
+{% endblock %}
